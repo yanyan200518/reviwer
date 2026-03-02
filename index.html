@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avionics: Aircraft Instruments Reviewer</title>
+    
+    <!-- React & Babel -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        /* Flashcard Flip Animations & Mobile Optimizations */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .transition-transform { transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
+        
+        /* Hide scrollbar for clean look, especially on mobile */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Prevent tap highlight on mobile */
+        * { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- DATA SECTION: COMPREHENSIVE EXTRACTION --- //
+        const studyNotes = [
+            {
+                title: "1. Introduction & Basic Instruments",
+                content: `
+                    <p class="mb-2">All certificated aircraft have instruments (even hot air balloons/gliders require basic ones). Modern small single-engine airplanes have significantly more sophisticated instruments than 1940s airliners (like the Piper Cub).</p>
+                    <p class="mb-2"><strong>Purpose:</strong> Provide critical information for safe and efficient aircraft operation. When all visual references outside disappear, pilots must rely on these instruments.</p>
+                    <p class="mb-2 font-bold text-blue-800">Six Basic Instruments (Standard "Six-Pack" Configuration):</p>
+                    <ul class="list-disc pl-5 space-y-1 mb-2">
+                        <li><strong>Top Row:</strong> Airspeed Indicator (A/S), Attitude Indicator / Artificial Horizon (A/H), Altimeter (ALT)</li>
+                        <li><strong>Bottom Row:</strong> Turn Indicator / Turn & Bank (T&B), Heading Indicator / Directional Gyro (DG), Vertical Speed Indicator (VSI)</li>
+                    </ul>
+                `
+            },
+            {
+                title: "2. Instrument Categories",
+                content: `
+                    <p class="font-bold mb-1 text-blue-800">A. According to Application:</p>
+                    <ul class="list-disc pl-5 mb-4 space-y-1">
+                        <li><strong>Powerplant:</strong> Info related to the aircraft's engine(s).</li>
+                        <li><strong>Flight and Navigation:</strong> Altitude, speed, navigating data.</li>
+                        <li><strong>Systems:</strong> Electrical, hydraulic, pressurization, bleed air, etc.</li>
+                    </ul>
+                    <p class="font-bold mb-1 text-blue-800">B. According to Means of Operation:</p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Pressure:</strong> Measures pressure of air, fuel, oil.</li>
+                        <li><strong>Mechanical:</strong> Uses mechanical systems to obtain/transmit info.</li>
+                        <li><strong>Gyro:</strong> Uses gyroscope principles (primarily IFR flight).</li>
+                        <li><strong>Electrical/Electronic:</strong> Rapidly changing due to digital tech.</li>
+                    </ul>
+                `
+            },
+            {
+                title: "3. Installation, Sizes & Lighting",
+                content: `
+                    <p class="mb-3"><strong>Placement:</strong> Standard layout directly in front of pilot for easy scanning and easier transition to different airplanes.</p>
+                    <p class="font-bold mb-1 text-blue-800">Standard Sizes (Round):</p>
+                    <ul class="list-disc pl-5 mb-4 space-y-1">
+                        <li><strong>1":</strong> Often a vacuum gauge (single-engine).</li>
+                        <li><strong>2" Flangeless:</strong> Many turbine engine powerplant instruments.</li>
+                        <li><strong>2-1/4":</strong> Common size for many.</li>
+                        <li><strong>3-1/8":</strong> Standard full-size instrument.</li>
+                        <li><strong>4":</strong> Older style gyro (seldom used today).</li>
+                    </ul>
+                    <p class="font-bold mb-1 text-blue-800">Installation Methods:</p>
+                    <ul class="list-disc pl-5 mb-4 space-y-1">
+                        <li><strong>Screws:</strong> Non-magnetic fine thread machine screws (brass w/ black oxide finish are very common).</li>
+                        <li><strong>Circumferential Clamps:</strong> Fasten to back of panel, operate somewhat like hose clamps.</li>
+                        <li><strong>Brackets:</strong> Small "L" or "U" shaped brackets on studs.</li>
+                    </ul>
+                    <p class="font-bold mb-1 text-blue-800">Lighting Types (Care must be taken to ensure they don't short out):</p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Eyebrow:</strong> Small semi-circular fixtures fitting over the top of a round instrument.</li>
+                        <li><strong>Post:</strong> Small round lights installed into holes in the panel.</li>
+                        <li><strong>Internal:</strong> Inside the instrument case.</li>
+                        <li><strong>Flood:</strong> Aimed at panel, shielded from pilot's eyes (often a back-up lighting system).</li>
+                    </ul>
+                `
+            },
+            {
+                title: "4. Instrument Markings (Colors)",
+                content: `
+                    <p class="mb-2 italic text-sm text-slate-600">These markings are normally on the face of the instrument, inside the cover glass to indicate safe operating values.</p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Red Radial Line:</strong> Maximum or minimum operating limitation (e.g., maximum speed for all operations or minimum oil pressure).</li>
+                        <li><strong>Red Arc:</strong> Prohibited range of operation (e.g., restricted tachometer RPMs due to vibration problems).</li>
+                        <li><strong>Yellow Arc:</strong> Caution range (operations must be conducted with caution and only in smooth air).</li>
+                        <li><strong>Green Arc:</strong> Normal operating range.</li>
+                        <li><strong>Blue Arc/Line:</strong> Meaning specified by manufacturer (e.g., single engine best rate-of-climb speed [Vyse], or manifold pressure for lean mixture).</li>
+                        <li><strong>White Arc:</strong> Full flap operating range.</li>
+                    </ul>
+                `
+            },
+            {
+                title: "5. FAR 91.9 Requirements",
+                content: `
+                    <p class="font-bold text-blue-800 mb-1">VFR Day (Powered Civil Aircraft w/ Standard Category U.S. Airworthiness Certs):</p>
+                    <ul class="list-disc pl-5 mb-4 space-y-1 text-sm sm:text-base">
+                        <li>Airspeed indicator, Altimeter, Magnetic direction indicator.</li>
+                        <li>Tachometer, Oil pressure gauge (each engine).</li>
+                        <li>Fuel quantity gauge (each tank).</li>
+                        <li>Temp gauge (liquid-cooled), Oil temp gauge (air-cooled).</li>
+                        <li>Manifold pressure gauge (altitude engine).</li>
+                        <li>Landing gear position indicator (if retractable).</li>
+                    </ul>
+                    <p class="font-bold text-blue-800 mb-1">VFR Night (Adds to VFR Day):</p>
+                    <ul class="list-disc pl-5 mb-4 space-y-1 text-sm sm:text-base">
+                        <li>Position lights, Anti-collision lights (red/white).</li>
+                        <li>Adequate source of electrical energy.</li>
+                        <li>One electric landing light (if for hire).</li>
+                        <li>Spare fuses.</li>
+                    </ul>
+                    <p class="font-bold text-blue-800 mb-1">IFR (Adds to VFR Day/Night):</p>
+                    <ul class="list-disc pl-5 space-y-1 text-sm sm:text-base">
+                        <li>Two-way radio comms & Radio nav equipment.</li>
+                        <li>Gyro rate-of-turn indicator, Slip-skid indicator.</li>
+                        <li>Sensitive altimeter, Clock (hrs, mins, secs), Generator/alternator.</li>
+                        <li>Gyro bank & pitch (artificial horizon), Gyro direction (heading).</li>
+                        <li>DME system (if flight at/above 24,000 ft MSL).</li>
+                    </ul>
+                `
+            },
+            {
+                title: "6. Pressure Sensors & Units",
+                content: `
+                    <p class="font-bold mb-1 text-blue-800">Pressure Sensors:</p>
+                    <ul class="list-disc pl-5 mb-4 space-y-2">
+                        <li><strong>Bourdon Tube:</strong> Curved, hollow springy metal tube. Free end straightens under pressure via gears/linkages. Measures relatively high pressure (typically 20 PSI or more). Includes an anchor point and pointer staff.</li>
+                        <li><strong>Diaphragm (Pressure Capsule):</strong> Thin, lens-shaped hollow metal container. Uses springy metal (often beryllium copper). Measures low pressure (e.g., altimeter, airspeed).</li>
+                        <li><strong>Bellows:</strong> Longer than a diaphragm, features accordion folds for greater range of motion. Commonly measures low or differential pressure (can be divided into two chambers).</li>
+                    </ul>
+                    <p class="font-bold mb-1 text-blue-800">Units of Measure:</p>
+                    <p class="mb-4">PSI (Pounds/sq in), in. Hg (Inches of Mercury), Mbar (Millibars), kPa (Kilopascals).</p>
+                    <p class="font-bold mb-1 text-blue-800">Types of Pressure Measurement:</p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Absolute (PSIA / in. Hg absolute):</strong> Compared to a perfect vacuum (never negative).</li>
+                        <li><strong>Gauge (PSIG):</strong> Compared to ambient/outside atmospheric pressure.</li>
+                        <li><strong>Differential (PSID):</strong> Two different pressures compared to each other in the aircraft.</li>
+                    </ul>
+                `
+            },
+            {
+                title: "7. Pitot-Static System & Altimeter",
+                content: `
+                    <p class="mb-3">Supplies pitot and static pressure for instruments (ASI, VSI, Altimeter) via ports and tubing.</p>
+                    <ul class="list-disc pl-5 mb-4 space-y-2">
+                        <li><strong>Pitot Tube:</strong> Open tube facing forward into relative wind; measures RAM pressure. Has internal heaters (35w/100w), a baffle plate, and a drain hole.</li>
+                        <li><strong>Static Ports:</strong> Openings at right angles to relative wind; measures STATIC pressure (unaffected by speed). Usually paired on fuselage sides or integrated into the pitot tube.</li>
+                    </ul>
+                    <p class="font-bold mb-1 text-blue-800">Altimeter Specifics:</p>
+                    <p class="mb-2">Measures atmospheric pressure to display altitude in MSL (Mean Sea Level, referenced to major oceans). Internally consists of <strong>three diaphragms in series</strong> (Aneroid wafers) evacuated to an internal pressure of <strong>29.92 "Hg</strong>. This provides sensitivity to read altitudes of <strong>35,000 to 50,000 ft. or more</strong>.</p>
+                    <p class="mb-3">Includes a <strong>Kollsman window</strong> / barometric adjustment knob on the front to compensate for nonstandard atmospheric pressure, and a crosshatch flag.</p>
+                    <ul class="list-disc pl-5 mb-4 space-y-1">
+                        <li><strong>QNH (Query Nautical Height):</strong> Pressure measured from the sea level.</li>
+                        <li><strong>QNE (Query Nautical Equivalent):</strong> Pressure measured from standard datum (29.92" / 1013.2 hPa).</li>
+                        <li><strong>QFE (Query Field Elevation):</strong> Pressure measured from the Earth's surface (Runway).</li>
+                    </ul>
+                    <p><strong>Encoding Altimeter (Mode C):</strong> Sends aircraft altitude data to ground radar via a transponder.</p>
+                `
+            },
+            {
+                title: "8. Airspeed Indicator & V-Speeds",
+                content: `
+                    <p class="mb-3">Measures differential pressure between pitot pressure (inside diaphragm) and static pressure (outside diaphragm). Does NOT measure groundspeed.</p>
+                    <p class="font-bold mb-1 text-blue-800">Types of Airspeed:</p>
+                    <ul class="list-disc pl-5 mb-4 space-y-1">
+                        <li><strong>Indicated (IAS):</strong> Reading on the instrument.</li>
+                        <li><strong>Calibrated (CAS):</strong> IAS corrected for position/instrument error.</li>
+                        <li><strong>True (TAS):</strong> CAS corrected for altitude and temperature effects.</li>
+                    </ul>
+                    <p class="font-bold mb-1 text-blue-800">V-Speeds & Markings:</p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>V_S0:</strong> Stall speed, gear/flaps down (Bottom of White Arc).</li>
+                        <li><strong>V_S1:</strong> Stall speed, gear/flaps up (Bottom of Green Arc).</li>
+                        <li><strong>V_MC:</strong> Min control speed, critical engine failed (Red radial line, lower range on twins).</li>
+                        <li><strong>V_FE:</strong> Max flap extended speed (Top of White Arc).</li>
+                        <li><strong>V_NO:</strong> Max structural cruise (Top of Green Arc / Bottom of Yellow Arc).</li>
+                        <li><strong>V_NE:</strong> Never exceed speed (Red radial line, Top of Yellow Arc).</li>
+                        <li><strong>V_YSE:</strong> Best rate of climb, one engine inop (Blue Line / Sector).</li>
+                    </ul>
+                `
+            },
+            {
+                title: "9. Vertical Speed Indicator (VSI)",
+                content: `
+                    <p class="mb-2">Measures rate of change of static pressure in Feet Per Minute (FPM).</p> 
+                    <p class="mb-2"><strong>Mechanism:</strong> Direct static pressure is connected directly to the inside of the diaphragm. However, it is connected to the case pressure (outside of the diaphragm) by a <strong>small orifice or calibrated restrictor leak</strong>.</p>
+                    <p>Climb -> pressure decreases more rapidly inside diaphragm than outside -> diaphragm compresses. Descents -> opposite occurs. Levels off -> pressures equalize and pointer returns to zero.</p>
+                `
+            },
+            {
+                title: "10. Blocked Pitot-Static Scenarios",
+                content: `
+                    <div class="overflow-x-auto rounded-lg border border-slate-300 shadow-sm">
+                        <table class="min-w-full bg-white text-sm sm:text-base">
+                            <thead class="bg-slate-800 text-white">
+                                <tr>
+                                    <th class="p-3 text-left border-b font-semibold">Condition</th>
+                                    <th class="p-3 text-left border-b font-semibold">Airspeed Indicator</th>
+                                    <th class="p-3 text-left border-b font-semibold">Altimeter</th>
+                                    <th class="p-3 text-left border-b font-semibold">Vertical Speed Indicator</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-3 font-semibold text-red-700 whitespace-nowrap">Pitot Blocked</td>
+                                    <td class="p-3">Increases w/ altitude gain;<br/>Decreases w/ altitude loss.</td>
+                                    <td class="p-3 text-slate-500 italic">Unaffected</td>
+                                    <td class="p-3 text-slate-500 italic">Unaffected</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-3 font-semibold text-red-700 whitespace-nowrap">One Static Blocked</td>
+                                    <td class="p-3" colspan="3">Inaccurate while sideslipping; very sensitive in turbulence.</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-3 font-semibold text-red-700 whitespace-nowrap">Both Static Blocked</td>
+                                    <td class="p-3">Decreases w/ altitude gain;<br/>Increases w/ altitude loss.</td>
+                                    <td class="p-3">Does not change w/ actual gain or loss of altitude.</td>
+                                    <td class="p-3">Does not change w/ actual variations in vertical speed.</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 bg-red-50">
+                                    <td class="p-3 font-bold text-red-800 whitespace-nowrap">All Blocked</td>
+                                    <td class="p-3" colspan="3">All indications remain constant, regardless of actual changes in airspeed, altitude, and vertical speed.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `
+            }
+        ];
+
+        const flashcardsData = [
+            { q: "Enumeration:\nEnumerate the six basic flight instruments found in a standard configuration.", a: "1. Airspeed Indicator\n2. Attitude Indicator (Artificial Horizon)\n3. Altimeter\n4. Turn Indicator (Turn & Bank)\n5. Heading Indicator (Directional Gyro)\n6. Vertical Speed Indicator" },
+            { q: "Enumeration:\nEnumerate the three categories of instruments according to application.", a: "1. Powerplant Instruments\n2. Flight and Navigation Instruments\n3. Systems Instruments" },
+            { q: "Enumeration:\nEnumerate the four categories of instruments according to means of operation.", a: "1. Pressure Instruments\n2. Mechanical Instruments\n3. Gyro Instruments\n4. Electrical and Electronic Instruments" },
+            { q: "Enumeration:\nEnumerate the five standard sizes for round instruments.", a: "1. 1\"\n2. 2\" Flangeless\n3. 2-1/4\"\n4. 3-1/8\"\n5. 4\"" },
+            { q: "Enumeration:\nEnumerate the three common methods used to install instruments into the panel.", a: "1. Screws (usually brass w/ black oxide)\n2. Circumferential Clamps\n3. Brackets" },
+            { q: "Enumeration:\nEnumerate the four common types of instrument lighting systems.", a: "1. Eyebrow Lights\n2. Post Lights\n3. Internal Lights\n4. Flood Lights" },
+            { q: "Enumeration:\nEnumerate the three types of pressure measuring sensors.", a: "1. Bourdon Tube\n2. Diaphragm\n3. Bellows" },
+            { q: "Enumeration:\nEnumerate the three types of airspeed.", a: "1. Indicated Airspeed (IAS)\n2. Calibrated Airspeed (CAS)\n3. True Airspeed (TAS)" },
+            
+            { q: "Identification:\nThese instruments provide information related to the aircraft's engine or engines.", a: "Powerplant Instruments" },
+            { q: "Identification:\nInstruments that use the principles of a gyroscope and are primarily used for IFR flight.", a: "Gyro Instruments" },
+            { q: "Identification:\nA curved, hollow tube made of springy metal that straightens under pressure, used to measure relatively high pressures of 20 PSI or more.", a: "Bourdon Tube" },
+            { q: "Identification:\nA thin, lens-shaped hollow metal container, typically made of beryllium copper, used to measure relatively low pressures.", a: "Diaphragm (Pressure Capsule)" },
+            { q: "Identification:\nA longer pressure sensor featuring accordion folds for greater range of motion, used to measure differential pressure.", a: "Bellows" },
+            { q: "Identification:\nThe type of screws commonly used to install instruments into panels.", a: "Non-magnetic fine thread machine screws (or Brass screws with black oxide finish)" },
+            { q: "Identification:\nAn instrument marking indicating a prohibited range of operation, often due to vibration problems.", a: "Red Arc" },
+            { q: "Identification:\nAn instrument marking that signifies a caution range.", a: "Yellow Arc" },
+            { q: "Identification:\nA pressure that is compared to a perfect vacuum.", a: "Absolute Pressure (PSIA)" },
+            { q: "Identification:\nAn open tube facing forward into the relative wind to measure the ram pressure of the airstream.", a: "Pitot Tube" },
+            { q: "Identification:\nThe term for pressure that is measured from the sea level.", a: "QNH (Query Nautical Height)" },
+            { q: "Identification:\nThe term for pressure that is measured from the standard datum of 29.92\" Hg.", a: "QNE (Query Nautical Equivalent)" },
+            { q: "Identification:\nThe term for pressure that is measured from the Earth's surface or runway.", a: "QFE (Query Field Elevation)" },
+            { q: "Identification:\nThe internal altimeter mechanism component that consists of three units in series, evacuated to 29.92\" Hg.", a: "Aneroid Wafers (or Diaphragms)" },
+            { q: "Identification:\nThe altitude range that the three altimeter diaphragms are capable of reading.", a: "35,000 to 50,000 ft. or more" },
+            { q: "Identification:\nA system that sends aircraft altitude data to a ground radar system using a transponder.", a: "Encoding Altimeter (Mode C)" },
+            { q: "Identification:\nCalibrated airspeed which has been corrected for altitude and temperature effects.", a: "True Airspeed (TAS)" },
+            { q: "Identification:\nThe V-speed indicating stall speed with gear and flaps down, found at the bottom of the white arc.", a: "V_S0" },
+            { q: "Identification:\nThe V-speed indicating best rate of climb with one engine inoperative, marked by a blue radial line.", a: "V_YSE" },
+            { q: "Identification:\nThe component connecting the case pressure to the static pressure in a Vertical Speed Indicator.", a: "Small Orifice (or Calibrated Leak / Restrictor)" },
+            { q: "Identification:\nThe resulting instrument behavior on the Airspeed Indicator if the pitot source is blocked but static ports remain open.", a: "Increases with altitude gain; decreases with altitude loss" },
+            { q: "Identification:\nThe resulting instrument behavior if both static sources are blocked while the aircraft changes altitude.", a: "Altimeter and VSI do not change with actual gain/loss of altitude." }
+        ];
+
+        const quizQuestions = [
+            {
+                question: "Which of the following is NOT one of the six basic flight instruments?",
+                options: ["Airspeed Indicator", "Vertical Speed Indicator", "Tachometer", "Heading Indicator"],
+                answer: 2
+            },
+            {
+                question: "What size is considered the standard 'full-size' round instrument?",
+                options: ["2-1/4\"", "3-1/8\"", "4\"", "2\" Flangeless"],
+                answer: 1
+            },
+            {
+                question: "Which of the following lighting types consists of small semi-circular fixtures that fit over the top of a round instrument?",
+                options: ["Post Lights", "Flood Lights", "Internal Lights", "Eyebrow Lights"],
+                answer: 3
+            },
+            {
+                question: "Which FAR 91.9 condition requires a slip-skid indicator, clock, and gyroscopic pitch/bank indicator?",
+                options: ["VFR Day", "VFR Night", "IFR", "All flights above 10,000 ft"],
+                answer: 2
+            },
+            {
+                question: "Which pressure measuring sensor is shaped like a curved, hollow tube that tries to straighten out under pressure?",
+                options: ["Bellows", "Bourdon Tube", "Diaphragm", "Aneroid Wafer"],
+                answer: 1
+            },
+            {
+                question: "What type of pressure is compared against ambient/outside pressure?",
+                options: ["Gauge Pressure", "Absolute Pressure", "Differential Pressure", "Ram Pressure"],
+                answer: 0
+            },
+            {
+                question: "What pressure setting is measured from the standard datum (29.92\" Hg)?",
+                options: ["QNH", "QFE", "QNE", "MSL"],
+                answer: 2
+            },
+            {
+                question: "Which V-speed is indicated by the bottom of the green arc?",
+                options: ["Vs0", "Vs1", "Vfe", "Vno"],
+                answer: 1
+            },
+            {
+                question: "What does the blue radial line on an airspeed indicator represent for a twin-engine airplane?",
+                options: ["Never exceed speed", "Maximum structural cruise", "Minimum control speed (Vmc)", "Best rate of climb with one engine inoperative (Vyse)"],
+                answer: 3
+            },
+            {
+                question: "What happens to the Airspeed Indicator if the PITOT tube is blocked but static ports remain open?",
+                options: [
+                    "Airspeed remains constant regardless of altitude.",
+                    "Airspeed decreases with altitude gain and increases with altitude loss.",
+                    "Airspeed increases with altitude gain and decreases with altitude loss.",
+                    "Airspeed drops immediately to zero."
+                ],
+                answer: 2
+            },
+            {
+                question: "What happens to the Altimeter if BOTH STATIC ports are blocked?",
+                options: [
+                    "It drops to zero.",
+                    "It does not change with actual gain or loss of altitude.",
+                    "It reads high during descents.",
+                    "It acts like a Vertical Speed Indicator."
+                ],
+                answer: 1
+            },
+            {
+                question: "Which speed is True Airspeed (TAS)?",
+                options: [
+                    "The reading straight off the instrument face.",
+                    "Indicated airspeed corrected for position and instrument error.",
+                    "Calibrated airspeed corrected for altitude and temperature effects.",
+                    "Speed measured relative to the ground."
+                ],
+                answer: 2
+            }
+        ];
+
+        // --- COMPONENTS --- //
+
+        const StudyGuide = () => {
+            return (
+                <div className="space-y-4 md:space-y-6 max-w-4xl mx-auto pb-10">
+                    <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2 border-b pb-2 flex items-center">
+                            <i className="ph-fill ph-book-open-text text-blue-600 mr-2 md:mr-3 text-2xl md:text-3xl"></i>
+                            Comprehensive Study Notes
+                        </h2>
+                        <p className="text-slate-600 mb-6 text-sm md:text-base">Review all extracted data from <em>AVIONICS-AS-PPT-7-AIRCRAFT-INSTRUMENTS-PART-1.pdf</em></p>
+                        
+                        <div className="space-y-4 md:space-y-6">
+                            {studyNotes.map((note, idx) => (
+                                <div key={idx} className="bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
+                                    <div className="bg-slate-100 px-3 py-3 md:px-4 border-b border-slate-200 font-bold text-slate-800 text-sm md:text-base">
+                                        {note.title}
+                                    </div>
+                                    <div className="p-3 md:p-4 text-slate-700 leading-relaxed text-sm md:text-base" dangerouslySetInnerHTML={{ __html: note.content }} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Flashcards = () => {
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [isFlipped, setIsFlipped] = useState(false);
+
+            const nextCard = () => {
+                setIsFlipped(false);
+                setTimeout(() => {
+                    setCurrentIndex((prev) => (prev + 1) % flashcardsData.length);
+                }, 150);
+            };
+
+            const prevCard = () => {
+                setIsFlipped(false);
+                setTimeout(() => {
+                    setCurrentIndex((prev) => (prev - 1 + flashcardsData.length) % flashcardsData.length);
+                }, 150);
+            };
+
+            return (
+                <div className="max-w-2xl mx-auto pb-10 flex flex-col items-center">
+                    <div className="w-full flex justify-between items-center mb-4 px-2">
+                        <h2 className="text-xl md:text-2xl font-bold text-slate-800 flex items-center">
+                            <i className="ph-fill ph-cards text-blue-600 mr-2"></i> Flashcards
+                        </h2>
+                        <span className="font-semibold text-slate-500 bg-slate-200 px-3 py-1 rounded-full text-xs md:text-sm">
+                            {currentIndex + 1} / {flashcardsData.length}
+                        </span>
+                    </div>
+
+                    {/* Mobile-Optimized Card Container */}
+                    <div className="relative w-full min-h-[350px] md:min-h-[400px] perspective-1000 cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
+                        <div className={`w-full h-full relative transform-style-3d transition-transform duration-500 ${isFlipped ? 'rotate-y-180' : ''}`}>
+                            
+                            {/* Front (Question) */}
+                            <div className="absolute w-full h-full backface-hidden bg-white rounded-2xl shadow-md border-2 border-blue-100 flex flex-col justify-center items-center p-6 md:p-8 text-center">
+                                <div className="absolute top-4 left-4 text-blue-300">
+                                    <i className="ph-fill ph-question text-2xl md:text-3xl"></i>
+                                </div>
+                                <div className="w-full max-h-full overflow-y-auto no-scrollbar pt-6 pb-6">
+                                    <p className="text-lg md:text-2xl font-bold text-slate-700 whitespace-pre-line">{flashcardsData[currentIndex].q}</p>
+                                </div>
+                                <p className="absolute bottom-4 text-slate-400 text-xs md:text-sm font-medium animate-pulse">Tap to flip</p>
+                            </div>
+
+                            {/* Back (Answer) */}
+                            <div className="absolute w-full h-full backface-hidden rotate-y-180 bg-blue-600 rounded-2xl shadow-lg border-2 border-blue-700 flex flex-col items-center justify-center p-6 md:p-8 text-center text-white">
+                                <div className="absolute top-4 left-4 text-blue-300">
+                                    <i className="ph-fill ph-lightbulb text-2xl md:text-3xl"></i>
+                                </div>
+                                <div className="w-full max-h-full overflow-y-auto no-scrollbar pt-8 pb-4">
+                                    <p className="text-base md:text-xl font-medium leading-relaxed whitespace-pre-line text-left inline-block">{flashcardsData[currentIndex].a}</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    {/* Controls */}
+                    <div className="flex gap-3 mt-6 w-full justify-center px-2">
+                        <button onClick={prevCard} className="flex-1 max-w-[140px] bg-slate-200 hover:bg-slate-300 text-slate-700 py-3 md:py-4 rounded-xl font-bold flex items-center justify-center transition-colors active:bg-slate-400">
+                            <i className="ph-bold ph-caret-left mr-1 md:mr-2 text-lg"></i> Prev
+                        </button>
+                        <button onClick={nextCard} className="flex-1 max-w-[140px] bg-blue-600 hover:bg-blue-700 text-white py-3 md:py-4 rounded-xl font-bold flex items-center justify-center shadow-md transition-colors active:bg-blue-800">
+                            Next <i className="ph-bold ph-caret-right ml-1 md:ml-2 text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const Quiz = () => {
+            const [currentQ, setCurrentQ] = useState(0);
+            const [selected, setSelected] = useState(null);
+            const [score, setScore] = useState(0);
+            const [isFinished, setIsFinished] = useState(false);
+            const [showExplanation, setShowExplanation] = useState(false);
+
+            const handleSelect = (idx) => {
+                if (selected !== null) return; 
+                setSelected(idx);
+                setShowExplanation(true);
+                if (idx === quizQuestions[currentQ].answer) {
+                    setScore(prev => prev + 1);
+                }
+            };
+
+            const nextQuestion = () => {
+                setSelected(null);
+                setShowExplanation(false);
+                if (currentQ + 1 < quizQuestions.length) {
+                    setCurrentQ(prev => prev + 1);
+                } else {
+                    setIsFinished(true);
+                }
+            };
+
+            const restartQuiz = () => {
+                setCurrentQ(0);
+                setSelected(null);
+                setScore(0);
+                setIsFinished(false);
+                setShowExplanation(false);
+            };
+
+            if (isFinished) {
+                const percentage = Math.round((score / quizQuestions.length) * 100);
+                return (
+                    <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 text-center mt-6 md:mt-10">
+                        <i className={`ph-fill ${percentage >= 80 ? 'ph-trophy text-yellow-500' : 'ph-warning-circle text-orange-500'} text-5xl md:text-6xl mb-4`}></i>
+                        <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">Quiz Complete!</h2>
+                        <p className="text-base md:text-lg text-slate-600 mb-6">You scored {score} out of {quizQuestions.length} ({percentage}%)</p>
+                        
+                        <div className="w-full bg-slate-200 rounded-full h-3 md:h-4 mb-8">
+                            <div className={`h-full rounded-full transition-all duration-1000 ${percentage >= 80 ? 'bg-green-500' : percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${percentage}%` }}></div>
+                        </div>
+
+                        <button onClick={restartQuiz} className="bg-blue-600 hover:bg-blue-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center mx-auto active:bg-blue-800">
+                            <i className="ph-bold ph-arrow-counter-clockwise mr-2 text-lg"></i> Retake Quiz
+                        </button>
+                    </div>
+                );
+            }
+
+            const q = quizQuestions[currentQ];
+
+            return (
+                <div className="max-w-3xl mx-auto pb-10">
+                    <div className="flex justify-between items-end mb-3 px-1 md:px-2">
+                        <h2 className="text-xl md:text-2xl font-bold text-slate-800 flex items-center">
+                            <i className="ph-fill ph-exam text-blue-600 mr-2"></i> Knowledge Check
+                        </h2>
+                        <span className="text-xs md:text-sm font-bold text-slate-500 bg-slate-200 px-2 py-1 rounded-md">
+                            Q {currentQ + 1} / {quizQuestions.length}
+                        </span>
+                    </div>
+
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        {/* Progress Bar */}
+                        <div className="h-1.5 w-full bg-slate-100">
+                            <div className="h-full bg-blue-500 transition-all duration-300" style={{ width: `${((currentQ) / quizQuestions.length) * 100}%` }}></div>
+                        </div>
+
+                        <div className="p-4 md:p-8">
+                            <h3 className="text-lg md:text-2xl font-semibold text-slate-800 mb-5 md:mb-6 leading-relaxed">
+                                {q.question}
+                            </h3>
+
+                            <div className="space-y-3">
+                                {q.options.map((opt, idx) => {
+                                    let btnClass = "w-full text-left p-4 md:p-5 rounded-xl border-2 font-medium transition-all duration-200 flex justify-between items-center active:scale-[0.99] ";
+                                    
+                                    if (selected === null) {
+                                        btnClass += "border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-slate-700 cursor-pointer";
+                                    } else {
+                                        if (idx === q.answer) {
+                                            btnClass += "border-green-500 bg-green-50 text-green-800"; 
+                                        } else if (idx === selected) {
+                                            btnClass += "border-red-500 bg-red-50 text-red-800"; 
+                                        } else {
+                                            btnClass += "border-slate-100 bg-slate-50 text-slate-400 opacity-60 cursor-not-allowed"; 
+                                        }
+                                    }
+
+                                    return (
+                                        <button 
+                                            key={idx} 
+                                            onClick={() => handleSelect(idx)}
+                                            className={btnClass}
+                                            disabled={selected !== null}
+                                        >
+                                            <span className="text-sm md:text-base pr-2 leading-tight">{opt}</span>
+                                            {selected !== null && idx === q.answer && <i className="ph-bold ph-check-circle text-green-600 text-xl flex-shrink-0"></i>}
+                                            {selected !== null && idx === selected && idx !== q.answer && <i className="ph-bold ph-x-circle text-red-600 text-xl flex-shrink-0"></i>}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+
+                            {showExplanation && (
+                                <div className="mt-6 md:mt-8 flex justify-end">
+                                    <button 
+                                        onClick={nextQuestion}
+                                        className="w-full md:w-auto bg-slate-800 hover:bg-slate-900 text-white px-8 py-4 md:py-3 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center active:bg-black"
+                                    >
+                                        {currentQ + 1 === quizQuestions.length ? 'Finish Quiz' : 'Next Question'} 
+                                        <i className="ph-bold ph-arrow-right ml-2 text-lg"></i>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('study');
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    {/* Header */}
+                    <header className="bg-slate-900 text-white shadow-md">
+                        <div className="max-w-6xl mx-auto px-4 py-5 md:py-6">
+                            <h1 className="text-xl md:text-3xl font-extrabold tracking-tight flex items-center">
+                                <i className="ph-fill ph-airplane-tilt mr-2 md:mr-3 text-blue-400 text-2xl md:text-3xl"></i>
+                                Avionics: Instruments
+                            </h1>
+                            <p className="text-slate-400 mt-1 text-xs md:text-base">Comprehensive Interactive Reviewer (Part 1)</p>
+                        </div>
+                    </header>
+
+                    {/* Navigation Tabs - Mobile Scrollable */}
+                    <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+                        <div className="max-w-6xl mx-auto flex overflow-x-auto no-scrollbar touch-pan-x">
+                            <button 
+                                onClick={() => setActiveTab('study')}
+                                className={`flex-1 min-w-[120px] py-4 px-2 font-bold text-sm md:text-base border-b-4 transition-colors flex justify-center items-center ${activeTab === 'study' ? 'border-blue-600 text-blue-600 bg-blue-50/50' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'}`}
+                            >
+                                <i className="ph-bold ph-book-open mr-1.5 md:mr-2 text-lg"></i> Notes
+                            </button>
+                            <button 
+                                onClick={() => setActiveTab('flashcards')}
+                                className={`flex-1 min-w-[120px] py-4 px-2 font-bold text-sm md:text-base border-b-4 transition-colors flex justify-center items-center ${activeTab === 'flashcards' ? 'border-blue-600 text-blue-600 bg-blue-50/50' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'}`}
+                            >
+                                <i className="ph-bold ph-cards mr-1.5 md:mr-2 text-lg"></i> Flashcards
+                            </button>
+                            <button 
+                                onClick={() => setActiveTab('quiz')}
+                                className={`flex-1 min-w-[120px] py-4 px-2 font-bold text-sm md:text-base border-b-4 transition-colors flex justify-center items-center ${activeTab === 'quiz' ? 'border-blue-600 text-blue-600 bg-blue-50/50' : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'}`}
+                            >
+                                <i className="ph-bold ph-exam mr-1.5 md:mr-2 text-lg"></i> Quiz
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Main Content Area */}
+                    <main className="flex-1 p-3 sm:p-4 md:p-8">
+                        {activeTab === 'study' && <StudyGuide />}
+                        {activeTab === 'flashcards' && <Flashcards />}
+                        {activeTab === 'quiz' && <Quiz />}
+                    </main>
+
+                    <footer className="bg-slate-800 text-slate-400 text-center py-6 px-4 text-xs md:text-sm">
+                        <p>Extracted explicitly from: AVIONICS-AS-PPT-7-AIRCRAFT-INSTRUMENTS-PART-1</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
